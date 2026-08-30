@@ -1,0 +1,309 @@
+{
+  "info": {
+    "_postman_id": "9b1a85c4-72de-4c28-98e3-85fcf2e3a101",
+    "name": "API Students (Modul 3)",
+    "description": "Koleksi Postman untuk pengujian dan dokumentasi RESTful API Students (Golang Fiber + PostgreSQL).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Mengecek status kesehatan server dan koneksi ke basis data PostgreSQL."
+      },
+      "response": []
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "Get All Students (Pagination, Sort, Filter, Search)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students?page=1&limit=10&sort=id&order=asc&search=&grade=&is_active=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Nomor halaman (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Jumlah item per halaman (default: 10)"
+                },
+                {
+                  "key": "sort",
+                  "value": "id",
+                  "description": "Field pengurutan (id, nim, name, grade, created_at)"
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "description": "Arah pengurutan (asc/desc)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Pencarian nama atau NIM"
+                },
+                {
+                  "key": "grade",
+                  "value": "",
+                  "description": "Filter grade/nilai"
+                },
+                {
+                  "key": "is_active",
+                  "value": "",
+                  "description": "Filter status aktif (true/false)"
+                }
+              ]
+            },
+            "description": "Mengambil daftar seluruh mahasiswa beserta metadata pagination."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "1"
+              ]
+            },
+            "description": "Mengambil data detail satu mahasiswa berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Ahmad Dani\",\n  \"grade\": \"A\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ]
+            },
+            "description": "Menambahkan data mahasiswa baru. Field `nim`, `name`, dan `grade` wajib diisi."
+          },
+          "response": []
+        },
+        {
+          "name": "Replace Student (PUT / Full Update)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Ahmad Dani Pratama\",\n  \"grade\": \"A+\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "1"
+              ]
+            },
+            "description": "Mengganti seluruh data mahasiswa berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Student Partial (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grade\": \"B+\",\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "1"
+              ]
+            },
+            "description": "Memperbarui sebagian atribut mahasiswa."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Student",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "1"
+              ]
+            },
+            "description": "Menghapus data mahasiswa berdasarkan ID."
+          },
+          "response": []
+        }
+      ],
+      "description": "Kumpulan endpoint untuk modul mahasiswa"
+    },
+    {
+      "name": "Skenario Pengujian Tugas (Screenshots)",
+      "item": [
+        {
+          "name": "1. Test 404 - ID Tidak Ditemukan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "99999"
+              ]
+            },
+            "description": "Pengujian status 404 Not Found dengan memanggil ID yang tidak ada di database (misal: GET /students/99999)."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Test 409 - Tambah NIM Duplikat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Mahasiswa Duplikat\",\n  \"grade\": \"B\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ]
+            },
+            "description": "Pengujian status 409 Conflict saat mendaftarkan atau mengubah NIM yang sudah ada di database."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Test 503 - Health Check Saat PostgreSQL Mati",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Pengujian status 503 Service Unavailable pada /health saat PostgreSQL dimatikan/di-stop."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Test 500 - Students List Saat PostgreSQL Mati",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ]
+            },
+            "description": "Pengujian status 500 Internal Server Error pada /students saat PostgreSQL dimatikan."
+          },
+          "response": []
+        }
+      ],
+      "description": "Skenario pengujian khusus untuk keperluan screenshot laporan praktikum (Status 404, 409, 503/500)"
+    }
+  ]
+}

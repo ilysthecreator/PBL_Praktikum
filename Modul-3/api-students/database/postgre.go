@@ -10,7 +10,6 @@ import (
 	"modul3/api-students/config"
 )
 
-// NewPool membuat connection pool ke PostgreSQL.
 func NewPool(ctx context.Context) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
@@ -18,7 +17,7 @@ func NewPool(ctx context.Context) (*pgxpool.Pool, error) {
 		config.GetEnv("DB_PASSWORD", ""),
 		config.GetEnv("DB_HOST", "localhost"),
 		config.GetEnv("DB_PORT", "5432"),
-		config.GetEnv("DB_NAME", "praktikum_backend"), // Nama database yang akan kita buat
+		config.GetEnv("DB_NAME", "praktikum_backend"), 
 		config.GetEnv("DB_SSLMODE", "disable"),
 	)
 
@@ -37,8 +36,7 @@ func NewPool(ctx context.Context) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("gagal membuat pool: %w", err)
 	}
 
-	// Ping memastikan kredensial benar dan server memang dapat dihubungi.
-	// Tanpa ini, kesalahan baru ketahuan saat request pertama masuk.
+
 	pingCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
