@@ -1,14 +1,24 @@
 {
   "info": {
-    "_postman_id": "9b1a85c4-72de-4c28-98e3-85fcf2e3a101",
-    "name": "API Students (Modul 3)",
-    "description": "Koleksi Postman untuk pengujian dan dokumentasi RESTful API Students (Golang Fiber + PostgreSQL).",
+    "_postman_id": "a5e4d28f-7489-4a92-b810-7bc3df4b9a55",
+    "name": "API Students - Modul 5 (Authentication & Security)",
+    "description": "Koleksi Postman untuk pengujian fitur Autentikasi & Keamanan (JWT, bcrypt, rate limiter, token rotation) pada RESTful API Students (Golang Fiber + PostgreSQL).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
       "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
       "type": "string"
     }
   ],
@@ -27,18 +37,314 @@
             "health"
           ]
         },
-        "description": "Mengecek status kesehatan server dan koneksi ke basis data PostgreSQL."
+        "description": "Endpoint publik untuk mengecek status server dan database tanpa perlu token."
       },
       "response": []
     },
     {
-      "name": "Students",
+      "name": "1. Authentication",
       "item": [
         {
-          "name": "Get All Students (Pagination, Sort, Filter, Search)",
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ilyas\",\n  \"email\": \"ilyas@example.com\",\n  \"password\": \"rahasia123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Mendaftar user baru (password di-hash dengan bcrypt cost 12, role default 'user', return 201 Created)."
+          },
+          "response": []
+        },
+        {
+          "name": "Register - Password Lemah (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"budi\",\n  \"email\": \"budi@example.com\",\n  \"password\": \"password1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Uji penolakan kata sandi yang terlalu umum atau tidak memenuhi kriteria kekuatan (422 Unprocessable Entity)."
+          },
+          "response": []
+        },
+        {
+          "name": "Register - Uji Mass Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"hacker\",\n  \"email\": \"hacker@example.com\",\n  \"password\": \"rahasia123\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Membuktikan celah Mass Assignment tertutup: field role yang disisipkan client diabaikan oleh server dan role tetap 'user'."
+          },
+          "response": []
+        },
+        {
+          "name": "Login (Sukses & Simpan Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data) {",
+                  "    if (jsonData.data.access_token) {",
+                  "        pm.collectionVariables.set('accessToken', jsonData.data.access_token);",
+                  "    }",
+                  "    if (jsonData.data.refresh_token) {",
+                  "        pm.collectionVariables.set('refreshToken', jsonData.data.refresh_token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ilyas\",\n  \"password\": \"rahasia123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login berhasil: menghasilkan access_token (15 menit) dan refresh_token (7 hari). Token otomatis tersimpan ke variabel Postman."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Gagal - Password Salah (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ilyas\",\n  \"password\": \"salahsekali9\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login gagal karena password salah (401 Unauthorized)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Gagal - User Tidak Ada (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"tidakada\",\n  \"password\": \"salahsekali9\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login gagal karena username tidak terdaftar. Pesan error SAMA PERSIS dengan kasus password salah (mencegah User Enumeration)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile (Me)",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Mengambil detail profil user yang sedang terautentikasi berdasarkan JWT access token."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token (Rotasi Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data) {",
+                  "    if (jsonData.data.access_token) {",
+                  "        pm.collectionVariables.set('accessToken', jsonData.data.access_token);",
+                  "    }",
+                  "    if (jsonData.data.refresh_token) {",
+                  "        pm.collectionVariables.set('refreshToken', jsonData.data.refresh_token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Meminta pasangan access_token dan refresh_token baru. Token lama otomatis dicabut (token rotation)."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout (Cabut Token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Mencabut refresh token sehingga tidak bisa lagi dipakai untuk memperbarui access token."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Students (Terlindungi - Wajib Token)",
+      "item": [
+        {
+          "name": "Get All Students",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/students?page=1&limit=10&sort=id&order=asc&search=&grade=&is_active=",
               "host": [
@@ -50,42 +356,35 @@
               "query": [
                 {
                   "key": "page",
-                  "value": "1",
-                  "description": "Nomor halaman (default: 1)"
+                  "value": "1"
                 },
                 {
                   "key": "limit",
-                  "value": "10",
-                  "description": "Jumlah item per halaman (default: 10)"
+                  "value": "10"
                 },
                 {
                   "key": "sort",
-                  "value": "id",
-                  "description": "Field pengurutan (id, nim, name, grade, created_at)"
+                  "value": "id"
                 },
                 {
                   "key": "order",
-                  "value": "asc",
-                  "description": "Arah pengurutan (asc/desc)"
+                  "value": "asc"
                 },
                 {
                   "key": "search",
-                  "value": "",
-                  "description": "Pencarian nama atau NIM"
+                  "value": ""
                 },
                 {
                   "key": "grade",
-                  "value": "",
-                  "description": "Filter grade/nilai"
+                  "value": ""
                 },
                 {
                   "key": "is_active",
-                  "value": "",
-                  "description": "Filter status aktif (true/false)"
+                  "value": ""
                 }
               ]
             },
-            "description": "Mengambil daftar seluruh mahasiswa beserta metadata pagination."
+            "description": "Mengambil daftar mahasiswa dengan menyertakan access token pada header Authorization."
           },
           "response": []
         },
@@ -93,7 +392,12 @@
           "name": "Get Student by ID",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/students/1",
               "host": [
@@ -104,7 +408,7 @@
                 "1"
               ]
             },
-            "description": "Mengambil data detail satu mahasiswa berdasarkan ID."
+            "description": "Mengambil detail satu mahasiswa berdasarkan ID."
           },
           "response": []
         },
@@ -115,13 +419,16 @@
             "header": [
               {
                 "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Ahmad Dani\",\n  \"grade\": \"A\"\n}"
+              "raw": "{\n  \"nim\": \"220101099\",\n  \"name\": \"Budi Santoso\",\n  \"grade\": \"A\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/students",
@@ -132,24 +439,27 @@
                 "students"
               ]
             },
-            "description": "Menambahkan data mahasiswa baru. Field `nim`, `name`, dan `grade` wajib diisi."
+            "description": "Menambahkan data mahasiswa baru."
           },
           "response": []
         },
         {
-          "name": "Replace Student (PUT / Full Update)",
+          "name": "Update Student (PUT)",
           "request": {
             "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Ahmad Dani Pratama\",\n  \"grade\": \"A+\",\n  \"is_active\": true\n}"
+              "raw": "{\n  \"nim\": \"220101099\",\n  \"name\": \"Budi Santoso Updated\",\n  \"grade\": \"B+\",\n  \"is_active\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/students/1",
@@ -161,24 +471,27 @@
                 "1"
               ]
             },
-            "description": "Mengganti seluruh data mahasiswa berdasarkan ID."
+            "description": "Mengganti seluruh atribut mahasiswa (replace)."
           },
           "response": []
         },
         {
-          "name": "Update Student Partial (PATCH)",
+          "name": "Patch Student (PATCH)",
           "request": {
             "method": "PATCH",
             "header": [
               {
                 "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"grade\": \"B+\",\n  \"is_active\": false\n}"
+              "raw": "{\n  \"grade\": \"A\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/students/1",
@@ -195,29 +508,39 @@
           "response": []
         },
         {
-          "name": "Delete Student",
+          "name": "Delete Student (DELETE)",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/students/1",
+              "raw": "{{baseUrl}}/students/999",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "students",
-                "1"
+                "999"
               ]
             },
-            "description": "Menghapus data mahasiswa berdasarkan ID."
+            "description": "Menghapus data mahasiswa."
           },
           "response": []
         },
         {
-          "name": "Get Nilai by NIM",
+          "name": "Get Student Nilai by NIM",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/students/220101001/nilai",
               "host": [
@@ -229,24 +552,56 @@
                 "nilai"
               ]
             },
-            "description": "Mengambil daftar nilai mahasiswa berdasarkan NIM."
+            "description": "Mengambil relasi nilai mahasiswa berdasarkan NIM."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Nilai (Terlindungi - Wajib Token)",
+      "item": [
+        {
+          "name": "Get Nilai by NIM",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/nilai/220101001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "nilai",
+                "220101001"
+              ]
+            },
+            "description": "Mengambil daftar nilai berdasarkan NIM."
           },
           "response": []
         },
         {
-          "name": "Add Nilai (POST)",
+          "name": "Create Nilai",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nama_mata_kuliah\": \"Jaringan Komputer\",\n  \"nilai\": 89.5,\n  \"id_student\": 1\n}"
+              "raw": "{\n  \"nama_mata_kuliah\": \"Keamanan Perangkat Lunak\",\n  \"nilai\": 90.5,\n  \"id_student\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/nilai",
@@ -257,101 +612,108 @@
                 "nilai"
               ]
             },
-            "description": "Menambahkan data nilai mahasiswa baru."
+            "description": "Menambahkan data nilai untuk mahasiswa."
           },
           "response": []
         }
-      ],
-      "description": "Kumpulan endpoint untuk modul mahasiswa dan nilai"
+      ]
     },
     {
-      "name": "Skenario Pengujian Tugas (Screenshots)",
+      "name": "4. Pengujian Keamanan (Security Tests)",
       "item": [
         {
-          "name": "1. Test 404 - ID Tidak Ditemukan",
+          "name": "Uji 1: Akses Tanpa Token (Harus 401)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/students/99999",
+              "raw": "{{baseUrl}}/students",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "students",
-                "99999"
+                "students"
               ]
             },
-            "description": "Pengujian status 404 Not Found dengan memanggil ID yang tidak ada di database (misal: GET /students/99999)."
+            "description": "Menguji akses endpoint mahasiswa tanpa menyertakan header Authorization (ekspektasi: 401 Unauthorized + header WWW-Authenticate)."
           },
           "response": []
         },
         {
-          "name": "2. Test 409 - Tambah NIM Duplikat",
+          "name": "Uji 2: Token Diubah 1 Karakter (Harus 401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}x"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ]
+            },
+            "description": "Menguji token dengan signature yang tidak cocok / dimanipulasi (ekspektasi: 401 'access token tidak valid')."
+          },
+          "response": []
+        },
+        {
+          "name": "Uji 3: Token Header Alg None (Harus 401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJzYXJpIiwicm9sZSI6ImFkbWluIiwiaXNzIjoicHJha3Rpa3VtLWJhY2tlbmQiLCJleHAiOjE5OTk5OTk5OTl9."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students"
+              ]
+            },
+            "description": "Menguji serangan Algorithm Confusion dengan token ber-alg 'none' (ekspektasi: 401 'access token tidak valid')."
+          },
+          "response": []
+        },
+        {
+          "name": "Uji 4: Pakai Refresh Token Lama Yang Dirotasi (Harus 401)",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
+                "value": "application/json"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Mahasiswa Duplikat\",\n  \"grade\": \"B\"\n}"
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/students",
+              "raw": "{{baseUrl}}/auth/refresh",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "students"
+                "auth",
+                "refresh"
               ]
             },
-            "description": "Pengujian status 409 Conflict saat mendaftarkan atau mengubah NIM yang sudah ada di database."
-          },
-          "response": []
-        },
-        {
-          "name": "3. Test 503 - Health Check Saat PostgreSQL Mati",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/health",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "health"
-              ]
-            },
-            "description": "Pengujian status 503 Service Unavailable pada /health saat PostgreSQL dimatikan/di-stop."
-          },
-          "response": []
-        },
-        {
-          "name": "4. Test 500 - Students List Saat PostgreSQL Mati",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/students",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students"
-              ]
-            },
-            "description": "Pengujian status 500 Internal Server Error pada /students saat PostgreSQL dimatikan."
+            "description": "Setelah request Refresh pertama berhasil, jalankan request ini lagi dengan token yang sama. Token lama sudah dicabut (ekspektasi: 401 'refresh token tidak valid atau sudah kedaluwarsa')."
           },
           "response": []
         }
-      ],
-      "description": "Skenario pengujian khusus untuk keperluan screenshot laporan praktikum (Status 404, 409, 503/500)"
+      ]
     }
   ]
 }
