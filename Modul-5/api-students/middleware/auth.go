@@ -11,14 +11,10 @@ import (
 	"api-students/helper"
 )
 
-// RequireAuth memeriksa access token pada header Authorization.
-// Bila tokennya sah, identitas pemakai disimpan di Locals agar dapat
-// dibaca service tanpa memeriksa ulang.
 func RequireAuth(jwtManager *helper.JWTManager) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		token, err := bearerToken(c)
 		if err != nil {
-			// WWW-Authenticate adalah header baku yang menyertai 401.
 			c.Set("WWW-Authenticate", `Bearer realm="api"`)
 			return helper.Fail(c, fiber.StatusUnauthorized,
 				"header Authorization tidak ada atau salah bentuk")
@@ -27,8 +23,6 @@ func RequireAuth(jwtManager *helper.JWTManager) fiber.Handler {
 		authUser, err := jwtManager.Parse(token)
 		if err != nil {
 			c.Set("WWW-Authenticate", `Bearer realm="api"`)
-			// Membedakan "kedaluwarsa" dari "tidak valid" aman dilakukan:
-			// client memang perlu tahu kapan harus memanggil /auth/refresh.
 			if errors.Is(err, helper.ErrExpiredToken) {
 				return helper.Fail(c, fiber.StatusUnauthorized, "access token kedaluwarsa")
 			}

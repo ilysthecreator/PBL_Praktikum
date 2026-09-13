@@ -23,10 +23,8 @@ type Dependencies struct {
 func Register(app *fiber.App, deps Dependencies) {
 	api := app.Group("/api/v1")
 
-	// --- endpoint publik ---
 	api.Get("/health", healthCheck(deps.Pool))
 
-	// --- endpoint autentikasi ---
 	auth := api.Group("/auth", middleware.RequireJSON)
 	auth.Post("/register", deps.AuthService.Register)
 	auth.Post("/login", middleware.LoginRateLimiter(), deps.AuthService.Login)
@@ -34,7 +32,6 @@ func Register(app *fiber.App, deps Dependencies) {
 	auth.Post("/logout", deps.AuthService.Logout)
 	auth.Get("/me", middleware.RequireAuth(deps.JWT), deps.AuthService.Me)
 
-	// --- endpoint terlindungi (wajib membawa token) ---
 	students := api.Group("/students",
 		middleware.RequireJSON,
 		middleware.RequireAuth(deps.JWT),

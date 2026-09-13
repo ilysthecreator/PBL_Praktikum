@@ -10,30 +10,18 @@ func TestCheckPasswordStrength(t *testing.T) {
 		password string
 		expected string
 	}{
+		{	name:	"password kurang dari 8 karakter",password: "pass1",expected: "minimal 8 karakter",},
 		{
-			name:     "password kurang dari 8 karakter",
-			password: "pass1",
-			expected: "minimal 8 karakter",
+			name:     "password hanya huruf tanpa angka",password: "passwordtanpaangka",expected: "harus memuat huruf dan angka",
 		},
 		{
-			name:     "password hanya huruf tanpa angka",
-			password: "passwordtanpaangka",
-			expected: "harus memuat huruf dan angka",
+			name:     "password hanya angka tanpa huruf",password: "1234567890",expected: "harus memuat huruf dan angka",
 		},
 		{
-			name:     "password hanya angka tanpa huruf",
-			password: "1234567890",
-			expected: "harus memuat huruf dan angka",
+			name:     "password ada di daftar umum / lemah",password: "password123",expected: "password terlalu umum",
 		},
 		{
-			name:     "password ada di daftar umum / lemah",
-			password: "password123",
-			expected: "password terlalu umum",
-		},
-		{
-			name:     "password kuat dan valid",
-			password: "rahasia123",
-			expected: "",
+			name:     "password kuat dan valid",password: "rahasia123",expected: "",
 		},
 	}
 

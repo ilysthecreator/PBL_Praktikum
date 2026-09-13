@@ -47,7 +47,6 @@ func ValidateLogin(req model.LoginRequest) map[string]string {
 	return errs
 }
 
-// CheckPasswordStrength memeriksa kekuatan password secara murni (pure function).
 func CheckPasswordStrength(password string) string {
 	if len(password) < minPasswordLength {
 		return "minimal 8 karakter"
@@ -67,8 +66,6 @@ func CheckPasswordStrength(password string) string {
 		return "harus memuat huruf dan angka"
 	}
 
-	// Daftar ini sengaja sangat pendek. Sistem sungguhan memakai daftar
-	// berisi jutaan password yang pernah bocor.
 	weak := map[string]bool{
 		"password1": true, "12345678": true, "qwerty123": true,
 		"admin123": true, "password123": true,

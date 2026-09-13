@@ -16,9 +16,6 @@ var (
 	ErrExpiredToken = errors.New("token sudah kedaluwarsa")
 )
 
-// accessClaims adalah isi access token. Selain field bawaan JWT,
-// ditambahkan username dan role agar middleware tidak perlu
-// menanyakannya ke database pada setiap request.
 type accessClaims struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
