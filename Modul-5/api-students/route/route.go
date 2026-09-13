@@ -12,29 +12,48 @@ import (
 	"api-students/middleware"
 )
 
-func Register(
-	app *fiber.App,
-	pool *pgxpool.Pool,
-	studentService *service.StudentService,
-	nilaiService *service.NilaiService,
-) {
+type Dependencies struct {
+	Pool           *pgxpool.Pool
+	JWT            *helper.JWTManager
+	StudentService *service.StudentService
+	NilaiService   *service.NilaiService
+	AuthService    *service.AuthService
+}
+
+func Register(app *fiber.App, deps Dependencies) {
 	api := app.Group("/api/v1")
 
-	api.Get("/health", healthCheck(pool))
+	// --- endpoint publik ---
+	api.Get("/health", healthCheck(deps.Pool))
 
-	students := api.Group("/students", middleware.RequireJSON)
-	students.Get("/", studentService.List)
-	students.Get("/:id", studentService.Get)
-	students.Post("/", studentService.Create)
-	students.Put("/:id", studentService.Replace)
-	students.Patch("/:id", studentService.Patch)
-	students.Delete("/:id", studentService.Delete)
+	// --- endpoint autentikasi ---
+	auth := api.Group("/auth", middleware.RequireJSON)
+	auth.Post("/register", deps.AuthService.Register)
+	auth.Post("/login", middleware.LoginRateLimiter(), deps.AuthService.Login)
+	auth.Post("/refresh", deps.AuthService.Refresh)
+	auth.Post("/logout", deps.AuthService.Logout)
+	auth.Get("/me", middleware.RequireAuth(deps.JWT), deps.AuthService.Me)
 
-	students.Get("/:nim/nilai", nilaiService.GetByNIM)
+	// --- endpoint terlindungi (wajib membawa token) ---
+	students := api.Group("/students",
+		middleware.RequireJSON,
+		middleware.RequireAuth(deps.JWT),
+	)
+	students.Get("/", deps.StudentService.List)
+	students.Get("/:id", deps.StudentService.Get)
+	students.Post("/", deps.StudentService.Create)
+	students.Put("/:id", deps.StudentService.Replace)
+	students.Patch("/:id", deps.StudentService.Patch)
+	students.Delete("/:id", deps.StudentService.Delete)
 
-	nilai := api.Group("/nilai", middleware.RequireJSON)
-	nilai.Get("/:nim", nilaiService.GetByNIM)
-	nilai.Post("/", nilaiService.Create)
+	students.Get("/:nim/nilai", deps.NilaiService.GetByNIM)
+
+	nilai := api.Group("/nilai",
+		middleware.RequireJSON,
+		middleware.RequireAuth(deps.JWT),
+	)
+	nilai.Get("/:nim", deps.NilaiService.GetByNIM)
+	nilai.Post("/", deps.NilaiService.Create)
 }
 
 // healthCheck melaporkan kondisi layanan beserta databasenya.

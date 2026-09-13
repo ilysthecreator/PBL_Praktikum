@@ -14,12 +14,26 @@ import (
 	"api-students/helper"
 )
 
-func Register(app *fiber.App, logger *slog.Logger) {
-	app.Use(requestid.New())       // 1. beri setiap request satu ID unik
-	app.Use(recover.New())         // 2. tangkap panic agar server tidak mati
-	app.Use(helmet.New())          // 3. pasang header keamanan dasar
-	app.Use(cors.New())            // 4. atur Cross-Origin Resource Sharing
-	app.Use(RequestLogger(logger)) // 5. catat setiap request
+func Register(app *fiber.App, logger *slog.Logger, allowedOrigins string) {
+	app.Use(requestid.New())            // 1. beri setiap request satu ID unik
+	app.Use(recover.New())              // 2. tangkap panic agar server tidak mati
+	app.Use(helmet.New())               // 3. pasang header keamanan dasar
+	app.Use(corsPolicy(allowedOrigins)) // 4. batasi Cross-Origin Resource Sharing
+	app.Use(RequestLogger(logger))      // 5. catat setiap request
+}
+
+// corsPolicy membatasi origin yang boleh memanggil API.
+// cors.New() tanpa konfigurasi mengizinkan SEMUA origin — cukup untuk
+// latihan pertemuan 2, tetapi tidak untuk API yang memakai token.
+func corsPolicy(allowedOrigins string) fiber.Handler {
+	if strings.TrimSpace(allowedOrigins) == "" {
+		allowedOrigins = "http://localhost:5173"
+	}
+	return cors.New(cors.Config{
+		AllowOrigins: allowedOrigins,
+		AllowMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+		AllowHeaders: "Origin,Content-Type,Accept,Authorization",
+	})
 }
 
 func RequestLogger(logger *slog.Logger) fiber.Handler {

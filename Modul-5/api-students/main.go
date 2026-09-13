@@ -12,12 +12,25 @@ import (
 	"api-students/app/service"
 	"api-students/config"
 	"api-students/database"
+	"api-students/helper"
+	"api-students/route"
 )
+
+const minSecretLength = 32
 
 func main() {
 	// 1. Konfigurasi dan logger
 	config.LoadEnv()
 	logger := config.NewLogger()
+
+	// Rahasia diperiksa SEBELUM server menyala. Lebih baik gagal seketika
+	// daripada berjalan dengan token yang mudah dipalsukan.
+	jwtSecret := config.GetEnv("JWT_SECRET", "")
+	if len(jwtSecret) < minSecretLength {
+		logger.Error("JWT_SECRET tidak diisi atau terlalu pendek",
+			slog.Int("minimal_karakter", minSecretLength))
+		os.Exit(1)
+	}
 
 	// 2. Database
 	pool, err := database.NewPool(context.Background())
@@ -27,15 +40,37 @@ func main() {
 	}
 	defer pool.Close()
 
-	// 3. Perakitan dari dalam ke luar: repository -> service
+	// 3. JWT Manager
+	jwtManager := helper.NewJWTManager(
+		jwtSecret,
+		config.GetEnv("JWT_ISSUER", "praktikum-backend"),
+		time.Duration(config.GetEnvInt("JWT_ACCESS_TTL_MINUTES", 15))*time.Minute,
+	)
+
+	// 4. Repositories
 	studentRepository := repository.NewStudentRepository(pool)
-	studentService := service.NewStudentService(studentRepository)
-
 	nilaiRepository := repository.NewNilaiRepository(pool)
-	nilaiService := service.NewNilaiService(nilaiRepository, studentRepository)
+	userRepository := repository.NewUserRepository(pool)
+	tokenRepository := repository.NewTokenRepository(pool)
 
-	// 4. Aplikasi
-	app := config.NewApp(logger, pool, studentService, nilaiService)
+	// 5. Services
+	studentService := service.NewStudentService(studentRepository)
+	nilaiService := service.NewNilaiService(nilaiRepository, studentRepository)
+	authService := service.NewAuthService(
+		userRepository,
+		tokenRepository,
+		jwtManager,
+		time.Duration(config.GetEnvInt("JWT_REFRESH_TTL_DAYS", 7))*24*time.Hour,
+	)
+
+	// 6. Aplikasi Fiber
+	app := config.NewApp(logger, route.Dependencies{
+		Pool:           pool,
+		JWT:            jwtManager,
+		StudentService: studentService,
+		NilaiService:   nilaiService,
+		AuthService:    authService,
+	})
 
 	port := config.GetEnv("APP_PORT", "3000")
 
@@ -48,7 +83,7 @@ func main() {
 
 	logger.Info("server berjalan", slog.String("port", port))
 
-	// 5. Graceful shutdown: tunggu Ctrl+C, lalu beri waktu request
+	// 7. Graceful shutdown: tunggu Ctrl+C, lalu beri waktu request
 	// yang sedang berjalan untuk selesai.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -60,9 +95,8 @@ func main() {
 	defer cancel()
 
 	if err := app.ShutdownWithContext(ctx); err != nil {
-		logger.Error("gagal menutup server dengan rapi",
-			slog.String("error", err.Error()))
+		logger.Error("gagal menutup server secara bersih", slog.String("error", err.Error()))
+	} else {
+		logger.Info("server berhasil ditutup")
 	}
-
-	logger.Info("server berhenti dengan rapi")
 }
