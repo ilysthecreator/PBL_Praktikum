@@ -11,3 +11,13 @@ type User struct {
 	IsActive  bool      `json:"is_active"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+// AssignRoleRequest dipakai endpoint PATCH /users/:id/role.
+type AssignRoleRequest struct {
+	Role string `json:"role"`
+}
+
+type UpdateUserRequest struct {
+	Username *string `json:"username"`
+	Email    *string `json:"email"`
+}
