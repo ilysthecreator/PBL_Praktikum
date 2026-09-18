@@ -52,14 +52,28 @@ func main() {
 	nilaiRepository := repository.NewNilaiRepository(pool)
 	userRepository := repository.NewUserRepository(pool)
 	tokenRepository := repository.NewTokenRepository(pool)
+	roleRepository := repository.NewRoleRepository(pool)
+
+	// Pemetaan role ke permission dibaca SEKALI saat aplikasi menyala.
+	// Konsekuensinya: perubahan hak akses di database baru berlaku setelah
+	// aplikasi dijalankan ulang. Itu keputusan sadar, bukan kelalaian.
+	rawPermissions, err := roleRepository.LoadPermissions(context.Background())
+	if err != nil {
+		logger.Error("gagal memuat permission", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+	permissions := helper.NewPermissionSet(rawPermissions)
+	logger.Info("permission dimuat", slog.Any("roles", permissions.KnownRoles()))
 
 	// 5. Services
+	userService := service.NewUserService(userRepository, permissions)
 	studentService := service.NewStudentService(studentRepository)
 	nilaiService := service.NewNilaiService(nilaiRepository, studentRepository)
 	authService := service.NewAuthService(
 		userRepository,
 		tokenRepository,
 		jwtManager,
+		permissions,
 		time.Duration(config.GetEnvInt("JWT_REFRESH_TTL_DAYS", 7))*24*time.Hour,
 	)
 
@@ -67,6 +81,8 @@ func main() {
 	app := config.NewApp(logger, route.Dependencies{
 		Pool:           pool,
 		JWT:            jwtManager,
+		Permissions:    permissions,
+		UserService:    userService,
 		StudentService: studentService,
 		NilaiService:   nilaiService,
 		AuthService:    authService,
