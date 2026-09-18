@@ -67,7 +67,7 @@ func main() {
 
 	// 5. Services
 	userService := service.NewUserService(userRepository, permissions)
-	studentService := service.NewStudentService(studentRepository)
+	studentService := service.NewStudentService(studentRepository, permissions)
 	nilaiService := service.NewNilaiService(nilaiRepository, studentRepository)
 	authService := service.NewAuthService(
 		userRepository,
