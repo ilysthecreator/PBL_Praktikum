@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "a5e4d28f-7489-4a92-b810-7bc3df4b9a55",
-    "name": "API Students - Modul 5 (Authentication & Security)",
-    "description": "Koleksi Postman untuk pengujian fitur Autentikasi & Keamanan (JWT, bcrypt, rate limiter, token rotation) pada RESTful API Students (Golang Fiber + PostgreSQL).",
+    "_postman_id": "b6f5d39e-8591-4b03-a921-8cd4ef5b0b66",
+    "name": "API Students - Modul 6 (Authorization & RBAC)",
+    "description": "Koleksi Postman resmi untuk pengujian fitur Otorisasi, Role Based Access Control (RBAC), Data Ownership, serta Pengujian Negatif pada RESTful API Students (Golang Fiber + PostgreSQL).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -12,137 +12,64 @@
       "type": "string"
     },
     {
-      "key": "accessToken",
+      "key": "adminToken",
       "value": "",
       "type": "string"
     },
     {
-      "key": "refreshToken",
+      "key": "staffToken",
       "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user1Token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user2Token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testStudentId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "testUserId",
+      "value": "1",
       "type": "string"
     }
   ],
   "item": [
     {
-      "name": "Health Check",
+      "name": "0. Health Check",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/health",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "health"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
         },
-        "description": "Endpoint publik untuk mengecek status server dan database tanpa perlu token."
+        "description": "Endpoint publik untuk mengecek kesehatan server & koneksi PostgreSQL."
       },
       "response": []
     },
     {
-      "name": "1. Authentication",
+      "name": "1. Authentication (Login & Simpan Token)",
       "item": [
         {
-          "name": "Register User",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"ilyas\",\n  \"email\": \"ilyas@example.com\",\n  \"password\": \"rahasia123\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
-            },
-            "description": "Mendaftar user baru (password di-hash dengan bcrypt cost 12, role default 'user', return 201 Created)."
-          },
-          "response": []
-        },
-        {
-          "name": "Register - Password Lemah (422)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"budi\",\n  \"email\": \"budi@example.com\",\n  \"password\": \"password1\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
-            },
-            "description": "Uji penolakan kata sandi yang terlalu umum atau tidak memenuhi kriteria kekuatan (422 Unprocessable Entity)."
-          },
-          "response": []
-        },
-        {
-          "name": "Register - Uji Mass Assignment",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"hacker\",\n  \"email\": \"hacker@example.com\",\n  \"password\": \"rahasia123\",\n  \"role\": \"admin\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
-            },
-            "description": "Membuktikan celah Mass Assignment tertutup: field role yang disisipkan client diabaikan oleh server dan role tetap 'user'."
-          },
-          "response": []
-        },
-        {
-          "name": "Login (Sukses & Simpan Token)",
+          "name": "Login - Admin (Otomatis Simpan adminToken)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData && jsonData.data) {",
-                  "    if (jsonData.data.access_token) {",
-                  "        pm.collectionVariables.set('accessToken', jsonData.data.access_token);",
-                  "    }",
-                  "    if (jsonData.data.refresh_token) {",
-                  "        pm.collectionVariables.set('refreshToken', jsonData.data.refresh_token);",
-                  "    }",
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    pm.collectionVariables.set('adminToken', res.data.access_token);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -159,24 +86,32 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"ilyas\",\n  \"password\": \"rahasia123\"\n}"
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Rahasia123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            },
-            "description": "Login berhasil: menghasilkan access_token (15 menit) dan refresh_token (7 hari). Token otomatis tersimpan ke variabel Postman."
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
           },
           "response": []
         },
         {
-          "name": "Login Gagal - Password Salah (401)",
+          "name": "Login - Staff (Otomatis Simpan staffToken)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    pm.collectionVariables.set('staffToken', res.data.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -187,24 +122,32 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"ilyas\",\n  \"password\": \"salahsekali9\"\n}"
+              "raw": "{\n  \"username\": \"staff\",\n  \"password\": \"Rahasia123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            },
-            "description": "Login gagal karena password salah (401 Unauthorized)."
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
           },
           "response": []
         },
         {
-          "name": "Login Gagal - User Tidak Ada (401)",
+          "name": "Login - User1 Pemilik Data (Otomatis Simpan user1Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    pm.collectionVariables.set('user1Token', res.data.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -215,501 +158,761 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"tidakada\",\n  \"password\": \"salahsekali9\"\n}"
+              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"Rahasia123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            },
-            "description": "Login gagal karena username tidak terdaftar. Pesan error SAMA PERSIS dengan kasus password salah (mencegah User Enumeration)."
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
           },
           "response": []
         },
         {
-          "name": "Get Profile (Me)",
+          "name": "Login - User2 Bukan Pemilik (Otomatis Simpan user2Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    pm.collectionVariables.set('user2Token', res.data.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user2\",\n  \"password\": \"Rahasia123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Profil /auth/me - Cek List Permissions (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
             },
-            "description": "Mengambil detail profil user yang sedang terautentikasi berdasarkan JWT access token."
-          },
-          "response": []
-        },
-        {
-          "name": "Refresh Token (Rotasi Token)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData && jsonData.data) {",
-                  "    if (jsonData.data.access_token) {",
-                  "        pm.collectionVariables.set('accessToken', jsonData.data.access_token);",
-                  "    }",
-                  "    if (jsonData.data.refresh_token) {",
-                  "        pm.collectionVariables.set('refreshToken', jsonData.data.refresh_token);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/refresh",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
-            },
-            "description": "Meminta pasangan access_token dan refresh_token baru. Token lama otomatis dicabut (token rotation)."
-          },
-          "response": []
-        },
-        {
-          "name": "Logout (Cabut Token)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/logout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
-            },
-            "description": "Mencabut refresh token sehingga tidak bisa lagi dipakai untuk memperbarui access token."
+            "description": "Mengembalikan data user beserta array permissions yang dimiliki oleh role tersebut."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "2. Students (Terlindungi - Wajib Token)",
+      "name": "2. Matriks Hak Akses Users (Langkah 9)",
       "item": [
         {
-          "name": "Get All Students",
+          "name": "GET /users - Admin (Harus 200 OK)",
           "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/students?page=1&limit=10&sort=id&order=asc&search=&grade=&is_active=",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students"
-              ],
-              "query": [
+            "auth": {
+              "type": "bearer",
+              "bearer": [
                 {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "10"
-                },
-                {
-                  "key": "sort",
-                  "value": "id"
-                },
-                {
-                  "key": "order",
-                  "value": "asc"
-                },
-                {
-                  "key": "search",
-                  "value": ""
-                },
-                {
-                  "key": "grade",
-                  "value": ""
-                },
-                {
-                  "key": "is_active",
-                  "value": ""
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
                 }
               ]
             },
-            "description": "Mengambil daftar mahasiswa dengan menyertakan access token pada header Authorization."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Student by ID",
-          "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/students/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students",
-                "1"
-              ]
-            },
-            "description": "Mengambil detail satu mahasiswa berdasarkan ID."
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            }
           },
           "response": []
         },
         {
-          "name": "Create Student",
+          "name": "GET /users - Staff (Harus 200 OK)",
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nim\": \"220101099\",\n  \"name\": \"Budi Santoso\",\n  \"grade\": \"A\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/students",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students"
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
               ]
             },
-            "description": "Menambahkan data mahasiswa baru."
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            }
           },
           "response": []
         },
         {
-          "name": "Update Student (PUT)",
+          "name": "GET /users - User (Harus 403 Forbidden)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user1Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /users/:id - User Lihat Profil Sendiri (Harus 200 OK)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user1Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{testUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{testUserId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /users/:id - User Lihat Profil Orang Lain (Harus 403 Forbidden)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user2Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{testUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{testUserId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /users/:id - Admin Ubah Data User Lain (Harus 200 OK)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nim\": \"220101099\",\n  \"name\": \"Budi Santoso Updated\",\n  \"grade\": \"B+\",\n  \"is_active\": true\n}"
+              "raw": "{\n  \"username\": \"user1_updated\",\n  \"email\": \"user1_updated@unair.ac.id\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/students/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students",
-                "1"
-              ]
-            },
-            "description": "Mengganti seluruh atribut mahasiswa (replace)."
+              "raw": "{{baseUrl}}/users/{{testUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{testUserId}}"]
+            }
           },
           "response": []
         },
         {
-          "name": "Patch Student (PATCH)",
+          "name": "PATCH /users/:id/role - Admin Ubah Role Orang Lain (Harus 200 OK)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"grade\": \"A\"\n}"
+              "raw": "{\n  \"role\": \"staff\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/students/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students",
-                "1"
-              ]
-            },
-            "description": "Memperbarui sebagian atribut mahasiswa."
+              "raw": "{{baseUrl}}/users/{{testUserId}}/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{testUserId}}", "role"]
+            }
           },
           "response": []
         },
         {
-          "name": "Delete Student (DELETE)",
+          "name": "PATCH /users/:id/role - Admin Ubah Role Diri Sendiri (Harus 422 Unprocessable Entity)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"user\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/6/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "6", "role"]
+            },
+            "description": "Aturan bisnis: Admin tidak boleh menurunkan role dirinya sendiri agar sistem tidak kehilangan administrator."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /users/:id - Hapus Akun Sendiri (Harus 403 Forbidden)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/students/999",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students",
-                "999"
-              ]
-            },
-            "description": "Menghapus data mahasiswa."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Student Nilai by NIM",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/students/220101001/nilai",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students",
-                "220101001",
-                "nilai"
-              ]
-            },
-            "description": "Mengambil relasi nilai mahasiswa berdasarkan NIM."
+              "raw": "{{baseUrl}}/users/6",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "6"]
+            }
           },
           "response": []
         }
       ]
     },
     {
-      "name": "3. Nilai (Terlindungi - Wajib Token)",
+      "name": "3. Matriks Hak Akses Students (C.3)",
       "item": [
         {
-          "name": "Get Nilai by NIM",
+          "name": "GET /students - Admin (Harus 200 OK)",
           "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/nilai/220101001",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "nilai",
-                "220101001"
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
               ]
             },
-            "description": "Mengambil daftar nilai berdasarkan NIM."
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"]
+            }
           },
           "response": []
         },
         {
-          "name": "Create Nilai",
+          "name": "GET /students - Staff (Harus 200 OK)",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /students - User Biasa (Harus 403 Forbidden)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user1Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /students - Staff Buat Mahasiswa (Harus 201 Created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var res = pm.response.json();",
+                  "    pm.collectionVariables.set('testStudentId', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nama_mata_kuliah\": \"Keamanan Perangkat Lunak\",\n  \"nilai\": 90.5,\n  \"id_student\": 1\n}"
+              "raw": "{\n  \"nim\": \"70001\",\n  \"name\": \"Mahasiswa Buatan Staff\",\n  \"grade\": \"A\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/nilai",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "nilai"
+              "raw": "{{baseUrl}}/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /students - User Biasa Coba Buat (Harus 403 Forbidden)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user1Token}}",
+                  "type": "string"
+                }
               ]
             },
-            "description": "Menambahkan data nilai untuk mahasiswa."
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nim\": \"70002\",\n  \"name\": \"Mahasiswa Ilegal\",\n  \"grade\": \"B\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /students/:id - User Pemilik Data (Harus 200 OK)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user1Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/901",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", "901"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /students/:id - User Bukan Pemilik (Harus 403 Forbidden)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user2Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/901",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", "901"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /students/:id - Staff (Scope :any) (Harus 200 OK)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/901",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", "901"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /students/:id - User Pemilik Update (Harus 200 OK)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user1Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Diperbarui Pemilik\",\n  \"grade\": \"A\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students/901",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", "901"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /students/:id - Staff Coba Update (Harus 403 Forbidden)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Staff Mengubah\",\n  \"grade\": \"B\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students/901",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", "901"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /students/:id - Admin Update (Harus 200 OK)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Admin Mengubah\",\n  \"grade\": \"A\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students/901",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", "901"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /students/:id - User/Staff Coba Hapus (Harus 403 Forbidden)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/{{testStudentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", "{{testStudentId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /students/:id - Admin Hapus (Harus 204 No Content)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/students/{{testStudentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", "{{testStudentId}}"]
+            }
           },
           "response": []
         }
       ]
     },
     {
-      "name": "4. Pengujian Keamanan (Security Tests)",
+      "name": "4. Pengujian Negatif (C.3)",
       "item": [
         {
-          "name": "Uji 1: Akses Tanpa Token (Harus 401)",
+          "name": "Negatif 1: Injeksi owner_id Palsu pada POST (Mass Assignment)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nim\": \"99001\",\n  \"name\": \"Mahasiswa Uji Palsu Owner\",\n  \"grade\": \"A\",\n  \"owner_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"]
+            },
+            "description": "Staff mencoba mengirim 'owner_id': 1 (milik admin). Sistem berhasil membuat data (201 Created), tetapi nilai owner_id di database tetap otomatis menjadi ID Staff pembuatnya (bukan 1)."
+          },
+          "response": []
+        },
+        {
+          "name": "Negatif 2: User2 Coba Ubah Data User1 (IDOR Attack - Harus 403 Forbidden)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user2Token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nim\": \"220101001\",\n  \"name\": \"Serangan IDOR Berhasil?\",\n  \"grade\": \"E\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students/901",
+              "host": ["{{baseUrl}}"],
+              "path": ["students", "901"]
+            },
+            "description": "User2 mencoba mengubah data mahasiswa yang dimiliki oleh User1. Ditolak oleh layer service dengan 403 Forbidden."
+          },
+          "response": []
+        },
+        {
+          "name": "Negatif 3: Akses Tanpa Token Authorization (Harus 401 Unauthorized)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/students",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["students"]
             },
-            "description": "Menguji akses endpoint mahasiswa tanpa menyertakan header Authorization (ekspektasi: 401 Unauthorized + header WWW-Authenticate)."
-          },
-          "response": []
-        },
-        {
-          "name": "Uji 2: Token Diubah 1 Karakter (Harus 401)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}x"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/students",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students"
-              ]
-            },
-            "description": "Menguji token dengan signature yang tidak cocok / dimanipulasi (ekspektasi: 401 'access token tidak valid')."
-          },
-          "response": []
-        },
-        {
-          "name": "Uji 3: Token Header Alg None (Harus 401)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJzYXJpIiwicm9sZSI6ImFkbWluIiwiaXNzIjoicHJha3Rpa3VtLWJhY2tlbmQiLCJleHAiOjE5OTk5OTk5OTl9."
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/students",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "students"
-              ]
-            },
-            "description": "Menguji serangan Algorithm Confusion dengan token ber-alg 'none' (ekspektasi: 401 'access token tidak valid')."
-          },
-          "response": []
-        },
-        {
-          "name": "Uji 4: Pakai Refresh Token Lama Yang Dirotasi (Harus 401)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/auth/refresh",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
-            },
-            "description": "Setelah request Refresh pertama berhasil, jalankan request ini lagi dengan token yang sama. Token lama sudah dicabut (ekspektasi: 401 'refresh token tidak valid atau sudah kedaluwarsa')."
+            "description": "Memanggil endpoint yang diproteksi tanpa Authorization header."
           },
           "response": []
         }
