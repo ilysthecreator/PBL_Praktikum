@@ -20,7 +20,8 @@ type Dependencies struct {
 	StudentService *service.StudentService
 	NilaiService   *service.NilaiService
 	AuthService    *service.AuthService
-	CourseService  *service.CourseService
+	CourseService      *service.CourseService
+	SupervisorService  *service.SupervisorService
 }
 
 func Register(app *fiber.App, deps Dependencies) {
@@ -59,6 +60,23 @@ func Register(app *fiber.App, deps Dependencies) {
 			middleware.RequireAuth(deps.JWT))
 		enrollments.Post("/swap", deps.CourseService.Swap)
 	}
+
+	// --- pembimbing tugas akhir (Tugas Mandiri D.2) ---
+	if deps.SupervisorService != nil {
+		supervisors := api.Group("/supervisors",
+			middleware.RequireJSON,
+			middleware.RequireAuth(deps.JWT))
+		supervisors.Get("/", deps.SupervisorService.List)
+		supervisors.Get("/:id", deps.SupervisorService.Get)
+		supervisors.Post("/:id/assign", middleware.RequirePermission(perms, "supervision:manage"), deps.SupervisorService.Assign)
+		supervisors.Patch("/:id", middleware.RequirePermission(perms, "supervision:manage"), deps.SupervisorService.UpdateQuota)
+
+		supervisions := api.Group("/supervisions",
+			middleware.RequireJSON,
+			middleware.RequireAuth(deps.JWT))
+		supervisions.Post("/switch", middleware.RequirePermission(perms, "supervision:manage"), deps.SupervisorService.Switch)
+	}
+
 
 	// --- user management (Langkah 6) ---
 	// wajib login, hak akses diperiksa per endpoint
