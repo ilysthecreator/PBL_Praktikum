@@ -69,6 +69,11 @@ func main() {
 	roleRepository := repository.NewRoleRepository(pool)
 	courseRepository := repository.NewCourseRepository(pool)
 	supervisorRepository := repository.NewSupervisorRepository(pool)
+	reviewRepository := repository.NewReviewRepository(mongoDB)
+	if err := reviewRepository.EnsureIndexes(context.Background()); err != nil {
+		logger.Error("gagal membuat index ulasan mongodb", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
 	txManager := repository.NewTxManager(pool)
 
 	// Pemetaan role ke permission dibaca SEKALI saat aplikasi menyala.
@@ -95,6 +100,7 @@ func main() {
 	)
 	courseService := service.NewCourseService(courseRepository, txManager)
 	supervisorService := service.NewSupervisorService(supervisorRepository, studentRepository, txManager)
+	reviewService := service.NewReviewService(reviewRepository, courseRepository, permissions)
 
 	// 6. Aplikasi Fiber
 	app := config.NewApp(logger, route.Dependencies{
@@ -108,6 +114,7 @@ func main() {
 		AuthService:       authService,
 		CourseService:     courseService,
 		SupervisorService: supervisorService,
+		ReviewService:     reviewService,
 	})
 
 	port := config.GetEnv("APP_PORT", "3000")
