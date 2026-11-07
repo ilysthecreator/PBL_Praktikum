@@ -25,6 +25,7 @@ type Dependencies struct {
 	CourseService      *service.CourseService
 	SupervisorService  *service.SupervisorService
 	ReviewService      *service.ReviewService
+	PortfolioService   *service.PortfolioService
 }
 
 func Register(app *fiber.App, deps Dependencies) {
@@ -145,6 +146,20 @@ func Register(app *fiber.App, deps Dependencies) {
 	students.Patch("/:id", deps.StudentService.Patch)
 
 	students.Get("/:nim/nilai", deps.NilaiService.GetByNIM)
+
+	// Portofolio Mahasiswa (Modul 10 Tugas Mandiri)
+	if deps.PortfolioService != nil {
+		students.Get("/:id/portfolio", deps.PortfolioService.Get)
+		students.Put("/:id/portfolio", deps.PortfolioService.Upsert)
+		students.Post("/:id/portfolio/projects", deps.PortfolioService.AddProject)
+		students.Delete("/:id/portfolio/projects/:projectId", deps.PortfolioService.DeleteProject)
+
+		portfolios := api.Group("/portfolios",
+			middleware.RequireJSON,
+			middleware.RequireAuth(deps.JWT),
+		)
+		portfolios.Get("/stats/technologies", deps.PortfolioService.GetTopTechnologies)
+	}
 
 	// --- nilai ---
 	nilai := api.Group("/nilai",

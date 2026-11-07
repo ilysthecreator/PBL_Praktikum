@@ -74,6 +74,11 @@ func main() {
 		logger.Error("gagal membuat index ulasan mongodb", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
+	portfolioRepository := repository.NewPortfolioRepository(mongoDB)
+	if err := portfolioRepository.EnsureIndexes(context.Background()); err != nil {
+		logger.Error("gagal membuat index portofolio mongodb", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
 	txManager := repository.NewTxManager(pool)
 
 	// Pemetaan role ke permission dibaca SEKALI saat aplikasi menyala.
@@ -101,6 +106,7 @@ func main() {
 	courseService := service.NewCourseService(courseRepository, txManager)
 	supervisorService := service.NewSupervisorService(supervisorRepository, studentRepository, txManager)
 	reviewService := service.NewReviewService(reviewRepository, courseRepository, permissions)
+	portfolioService := service.NewPortfolioService(portfolioRepository, studentRepository)
 
 	// 6. Aplikasi Fiber
 	app := config.NewApp(logger, route.Dependencies{
@@ -115,6 +121,7 @@ func main() {
 		CourseService:     courseService,
 		SupervisorService: supervisorService,
 		ReviewService:     reviewService,
+		PortfolioService:  portfolioService,
 	})
 
 	port := config.GetEnv("APP_PORT", "3000")
