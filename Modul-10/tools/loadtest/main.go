@@ -61,7 +61,7 @@ func fire(n int, job func(i int) string) (map[string]int, time.Duration) {
 }
 
 func main() {
-	mode := flag.String("mode", "crowd", "Mode pengujian: crowd | credits | swap | supervisor")
+	mode := flag.String("mode", "crowd", "Mode pengujian: crowd | credits | swap | supervisor | portfolio")
 	baseURL := flag.String("url", "http://localhost:3000", "Base URL server target")
 	flag.Parse()
 
@@ -117,8 +117,10 @@ func main() {
 		runSwapTest(client, *baseURL, users, pool)
 	case "supervisor":
 		runSupervisorTest(client, *baseURL, users, pool, jwtManager)
+	case "portfolio":
+		runPortfolioTest(client, *baseURL, jwtManager)
 	default:
-		fmt.Printf("Mode '%s' tidak dikenal. Gunakan: crowd | credits | swap | supervisor\n", *mode)
+		fmt.Printf("Mode '%s' tidak dikenal. Gunakan: crowd | credits | swap | supervisor | portfolio\n", *mode)
 		os.Exit(1)
 	}
 }
@@ -430,4 +432,140 @@ func runSupervisorTest(client *http.Client, baseURL string, users []UserInfo, po
 		status = fmt.Sprintf("TIDAK KONSISTEN (Kelebihan %d mahasiswa)", supervisedCount-quota)
 	}
 	fmt.Printf("Supervisor ID=%d  quota=%d  supervised_count=%d  baris supervisions=%d  -> %s\n", supID, quota, supervisedCount, rowCount, status)
+}
+
+// -----------------------------------------------------------------------------
+// Mode portfolio: Batas 20 proyek diserang 10 request serentak (Modul 10)
+// -----------------------------------------------------------------------------
+func runPortfolioTest(client *http.Client, baseURL string, jwtManager *helper.JWTManager) {
+	fmt.Println("10 request serentak tambah proyek ke portofolio mahasiswa (kuota 20)...")
+
+	adminUser := model.User{ID: 1, Username: "admin", Role: "admin"}
+	adminToken, err := jwtManager.GenerateAccess(adminUser)
+	if err != nil {
+		log.Fatalf("Gagal membuat JWT admin: %v", err)
+	}
+
+	studentID := 1
+
+	// Inisialisasi portofolio mahasiswa
+	upsertURL := fmt.Sprintf("%s/api/v1/students/%d/portfolio", baseURL, studentID)
+	upBody, _ := json.Marshal(map[string]any{
+		"headline": "Full-Stack Developer",
+		"bio":      "Pengujian batas 20 proyek serentak.",
+	})
+	reqUp, _ := http.NewRequest(http.MethodPut, upsertURL, bytes.NewReader(upBody))
+	reqUp.Header.Set("Authorization", "Bearer "+adminToken)
+	reqUp.Header.Set("Content-Type", "application/json")
+	respUp, err := client.Do(reqUp)
+	if err != nil {
+		log.Fatalf("Gagal inisialisasi portofolio: %v", err)
+	}
+	respUp.Body.Close()
+
+	// Bersihkan proyek sebelumnya
+	getURL := fmt.Sprintf("%s/api/v1/students/%d/portfolio", baseURL, studentID)
+	reqGet, _ := http.NewRequest(http.MethodGet, getURL, nil)
+	reqGet.Header.Set("Authorization", "Bearer "+adminToken)
+	respGet, err := client.Do(reqGet)
+	if err == nil {
+		var getBody map[string]any
+		_ = json.NewDecoder(respGet.Body).Decode(&getBody)
+		respGet.Body.Close()
+		if data, ok := getBody["data"].(map[string]any); ok {
+			if projs, ok := data["projects"].([]any); ok {
+				for _, p := range projs {
+					if pMap, ok := p.(map[string]any); ok {
+						if pID, ok := pMap["id"].(string); ok {
+							delURL := fmt.Sprintf("%s/api/v1/students/%d/portfolio/projects/%s", baseURL, studentID, pID)
+							reqDel, _ := http.NewRequest(http.MethodDelete, delURL, nil)
+							reqDel.Header.Set("Authorization", "Bearer "+adminToken)
+							resDel, _ := client.Do(reqDel)
+							if resDel != nil {
+								resDel.Body.Close()
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Isi 18 proyek baseline
+	fmt.Println("Mengisi 18 proyek baseline...")
+	addURL := fmt.Sprintf("%s/api/v1/students/%d/portfolio/projects", baseURL, studentID)
+	for i := 1; i <= 18; i++ {
+		pBody, _ := json.Marshal(map[string]any{
+			"title":        fmt.Sprintf("Project Baseline #%d", i),
+			"technologies": []string{"go", "docker"},
+			"year":         2024,
+		})
+		reqAdd, _ := http.NewRequest(http.MethodPost, addURL, bytes.NewReader(pBody))
+		reqAdd.Header.Set("Authorization", "Bearer "+adminToken)
+		reqAdd.Header.Set("Content-Type", "application/json")
+		respAdd, err := client.Do(reqAdd)
+		if err != nil || respAdd.StatusCode != http.StatusCreated {
+			log.Fatalf("Gagal mengisi proyek baseline ke-%d", i)
+		}
+		respAdd.Body.Close()
+	}
+	fmt.Println("18 proyek awal berhasil diisi.")
+
+	// Luncurkan 10 request serentak
+	fmt.Println("Mengirim 10 request serentak tambah proyek (sisa kuota 2)...")
+	tally, duration := fire(10, func(i int) string {
+		pBody, _ := json.Marshal(map[string]any{
+			"title":        fmt.Sprintf("Concurrent Project #%d", i+1),
+			"technologies": []string{"mongodb", "kubernetes"},
+			"year":         2024,
+		})
+		req, _ := http.NewRequest(http.MethodPost, addURL, bytes.NewReader(pBody))
+		req.Header.Set("Authorization", "Bearer "+adminToken)
+		req.Header.Set("Content-Type", "application/json")
+
+		resp, err := client.Do(req)
+		if err != nil {
+			return "ERR"
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode == http.StatusCreated {
+			return "201 CREATED"
+		}
+
+		var body map[string]any
+		_ = json.NewDecoder(resp.Body).Decode(&body)
+		if code, ok := body["code"].(string); ok {
+			return fmt.Sprintf("%d %s", resp.StatusCode, code)
+		}
+		return strconv.Itoa(resp.StatusCode)
+	})
+
+	fmt.Println("hasil request:")
+	for status, count := range tally {
+		fmt.Printf("  %-25s %d\n", status, count)
+	}
+	fmt.Printf("waktu total : %v\n", duration)
+
+	// Verifikasi jumlah akhir proyek di MongoDB
+	reqFinal, _ := http.NewRequest(http.MethodGet, getURL, nil)
+	reqFinal.Header.Set("Authorization", "Bearer "+adminToken)
+	respFinal, _ := client.Do(reqFinal)
+	finalCount := 0
+	if respFinal != nil {
+		var finalBody map[string]any
+		_ = json.NewDecoder(respFinal.Body).Decode(&finalBody)
+		respFinal.Body.Close()
+		if data, ok := finalBody["data"].(map[string]any); ok {
+			if projs, ok := data["projects"].([]any); ok {
+				finalCount = len(projs)
+			}
+		}
+	}
+
+	statusStr := "TIDAK KONSISTEN"
+	if finalCount == 20 && tally["201 CREATED"] == 2 && tally["409 PROJECT_LIMIT"] == 8 {
+		statusStr = "KONSISTEN (TEPAT 20 PROYEK)"
+	}
+	fmt.Printf("Student ID=%d  batas=20  proyek_tercatat=%d  -> %s\n", studentID, finalCount, statusStr)
 }
