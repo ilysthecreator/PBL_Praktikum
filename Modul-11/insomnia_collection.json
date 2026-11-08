@@ -1,0 +1,511 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-08T22:30:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.0.0",
+  "resources": [
+    {
+      "_id": "wrk_modul11_1794152169217",
+      "_type": "workspace",
+      "created": 1794152169217,
+      "description": "Koleksi Pengujian API Modul 11 - Background Jobs & Asynchronous Processing",
+      "modified": 1794152169217,
+      "name": "Modul 11 - Background Jobs & Transactional Outbox (Asynq + Redis + PostgreSQL)",
+      "parentId": null,
+      "scope": "collection"
+    },
+    {
+      "_id": "env_modul11_1794152169217",
+      "_type": "environment",
+      "color": null,
+      "created": 1794152169217,
+      "data": {
+        "base_url": "http://localhost:3000/api/v1",
+        "token_mhsuji": "",
+        "token_salahalamat": "",
+        "token_admin": ""
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "token_mhsuji",
+          "token_salahalamat",
+          "token_admin"
+        ]
+      },
+      "isPrivate": false,
+      "modified": 1794152169217,
+      "name": "Base Environment",
+      "parentId": "wrk_modul11_1794152169217"
+    },
+    {
+      "_id": "fld_health_1794152169217",
+      "_type": "request_group",
+      "name": "01. Health Check",
+      "parentId": "wrk_modul11_1794152169217"
+    },
+    {
+      "_id": "fld_auth_1794152169217",
+      "_type": "request_group",
+      "name": "02. Autentikasi (Akun Uji & Admin)",
+      "parentId": "wrk_modul11_1794152169217"
+    },
+    {
+      "_id": "fld_krs_1794152169217",
+      "_type": "request_group",
+      "name": "03. KRS & Transactional Outbox (Uji C.1)",
+      "parentId": "wrk_modul11_1794152169217"
+    },
+    {
+      "_id": "fld_notif_1794152169217",
+      "_type": "request_group",
+      "name": "04. Notifikasi Mahasiswa",
+      "parentId": "wrk_modul11_1794152169217"
+    },
+    {
+      "_id": "fld_admin_1794152169217",
+      "_type": "request_group",
+      "name": "05. Monitoring Antrean Admin (GET /admin/queue)",
+      "parentId": "wrk_modul11_1794152169217"
+    },
+    {
+      "_id": "req_0_1794152169217",
+      "_type": "request",
+      "authentication": {},
+      "body": {},
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "method": "GET",
+      "modified": 1794152169217,
+      "name": "Dual Health Check (PostgreSQL & MongoDB)",
+      "parameters": [],
+      "parentId": "fld_health_1794152169217",
+      "url": "http://localhost:3000/api/v1/health"
+    },
+    {
+      "_id": "req_1_1794152169217",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"mhsuji\",\n  \"email\": \"mhsuji@student.unair.ac.id\",\n  \"password\": \"password123\"\n}"
+      },
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "1. Register Akun mhsuji",
+      "parameters": [],
+      "parentId": "fld_auth_1794152169217",
+      "url": "http://localhost:3000/api/v1/auth/register"
+    },
+    {
+      "_id": "req_2_1794152169217",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"salahalamat\",\n  \"email\": \"salah@kampus.invalid\",\n  \"password\": \"password123\"\n}"
+      },
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "2. Register Akun salahalamat (.invalid)",
+      "parameters": [],
+      "parentId": "fld_auth_1794152169217",
+      "url": "http://localhost:3000/api/v1/auth/register"
+    },
+    {
+      "_id": "req_3_1794152169217",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"mhsuji\",\n  \"password\": \"password123\"\n}"
+      },
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "3. Login - mhsuji",
+      "parameters": [],
+      "parentId": "fld_auth_1794152169217",
+      "url": "http://localhost:3000/api/v1/auth/login"
+    },
+    {
+      "_id": "req_4_1794152169217",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"salahalamat\",\n  \"password\": \"password123\"\n}"
+      },
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "4. Login - salahalamat",
+      "parameters": [],
+      "parentId": "fld_auth_1794152169217",
+      "url": "http://localhost:3000/api/v1/auth/login"
+    },
+    {
+      "_id": "req_5_1794152169217",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+      },
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "5. Login - admin",
+      "parameters": [],
+      "parentId": "fld_auth_1794152169217",
+      "url": "http://localhost:3000/api/v1/auth/login"
+    },
+    {
+      "_id": "req_6_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+      },
+      "body": {},
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+        }
+      ],
+      "method": "GET",
+      "modified": 1794152169217,
+      "name": "6. Profile Saya (/me)",
+      "parameters": [],
+      "parentId": "fld_auth_1794152169217",
+      "url": "http://localhost:3000/api/v1/auth/me"
+    },
+    {
+      "_id": "req_7_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+      },
+      "body": {},
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "1. Enroll Kelas 2 (POST /courses/2/enroll)",
+      "parameters": [],
+      "parentId": "fld_krs_1794152169217",
+      "url": "http://localhost:3000/api/v1/courses/2/enroll"
+    },
+    {
+      "_id": "req_8_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+      },
+      "body": {},
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "2. Enroll Kelas 2 Diulang (Harus 409 & Bebas Outbox)",
+      "parameters": [],
+      "parentId": "fld_krs_1794152169217",
+      "url": "http://localhost:3000/api/v1/courses/2/enroll"
+    },
+    {
+      "_id": "req_9_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+      },
+      "body": {},
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+        }
+      ],
+      "method": "DELETE",
+      "modified": 1794152169217,
+      "name": "3. Drop Kelas 2 (DELETE /courses/2/enroll)",
+      "parameters": [],
+      "parentId": "fld_krs_1794152169217",
+      "url": "http://localhost:3000/api/v1/courses/2/enroll"
+    },
+    {
+      "_id": "req_10_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+      },
+      "body": {},
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "4. Enroll Kembali Kelas 2 (201 Created)",
+      "parameters": [],
+      "parentId": "fld_krs_1794152169217",
+      "url": "http://localhost:3000/api/v1/courses/2/enroll"
+    },
+    {
+      "_id": "req_11_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+      },
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"from_course_id\": 2,\n  \"to_course_id\": 4\n}"
+      },
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "5. Swap Kelas 2 ke Kelas 4 (200 OK)",
+      "parameters": [],
+      "parentId": "fld_krs_1794152169217",
+      "url": "http://localhost:3000/api/v1/enrollments/swap"
+    },
+    {
+      "_id": "req_12_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDMsICJ1c2VybmFtZSI6ICJzYWxhaGFsYW1hdCIsICJyb2xlIjogIm1haGFzaXN3YSIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiZXhwIjogMTc5NDIzODU2OX0.PFO4BSfYUtZ8H2JnkU6oTfr1TfmOtq5DY6m2arLdwUA"
+      },
+      "body": {},
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDMsICJ1c2VybmFtZSI6ICJzYWxhaGFsYW1hdCIsICJyb2xlIjogIm1haGFzaXN3YSIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiZXhwIjogMTc5NDIzODU2OX0.PFO4BSfYUtZ8H2JnkU6oTfr1TfmOtq5DY6m2arLdwUA"
+        }
+      ],
+      "method": "POST",
+      "modified": 1794152169217,
+      "name": "6. Enroll salahalamat ke Kelas 2 (Permanent Failure C.4)",
+      "parameters": [],
+      "parentId": "fld_krs_1794152169217",
+      "url": "http://localhost:3000/api/v1/courses/2/enroll"
+    },
+    {
+      "_id": "req_13_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogMSwgInVzZXJuYW1lIjogImFkbWluIiwgInJvbGUiOiAiYWRtaW4iLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.ALuKqjlhI0G0FW7OzSb1t9uGlKDC0eZA5mg1x9XHSzg"
+      },
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"quota\": 35,\n  \"version\": 0\n}"
+      },
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogMSwgInVzZXJuYW1lIjogImFkbWluIiwgInJvbGUiOiAiYWRtaW4iLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.ALuKqjlhI0G0FW7OzSb1t9uGlKDC0eZA5mg1x9XHSzg"
+        }
+      ],
+      "method": "PATCH",
+      "modified": 1794152169217,
+      "name": "7. Admin Ubah Kuota Kelas (D.2 Broadcast Notifikasi)",
+      "parameters": [],
+      "parentId": "fld_krs_1794152169217",
+      "url": "http://localhost:3000/api/v1/courses/4"
+    },
+    {
+      "_id": "req_14_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+      },
+      "body": {},
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogNDIsICJ1c2VybmFtZSI6ICJtaHN1amkiLCAicm9sZSI6ICJtYWhhc2lzd2EiLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.wSaQ5ukQu0SnecNMRiVKwLfv931BWXJUO3CuPuy6TA8"
+        }
+      ],
+      "method": "GET",
+      "modified": 1794152169217,
+      "name": "1. Daftar Notifikasi Saya (GET /notifications/mine)",
+      "parameters": [],
+      "parentId": "fld_notif_1794152169217",
+      "url": "http://localhost:3000/api/v1/notifications/mine"
+    },
+    {
+      "_id": "req_15_1794152169217",
+      "_type": "request",
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogMSwgInVzZXJuYW1lIjogImFkbWluIiwgInJvbGUiOiAiYWRtaW4iLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.ALuKqjlhI0G0FW7OzSb1t9uGlKDC0eZA5mg1x9XHSzg"
+      },
+      "body": {},
+      "created": 1794152169217,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogMSwgInVzZXJuYW1lIjogImFkbWluIiwgInJvbGUiOiAiYWRtaW4iLCAiaXNzIjogInByYWt0aWt1bS1iYWNrZW5kIiwgImV4cCI6IDE3OTQyMzg1Njl9.ALuKqjlhI0G0FW7OzSb1t9uGlKDC0eZA5mg1x9XHSzg"
+        }
+      ],
+      "method": "GET",
+      "modified": 1794152169217,
+      "name": "1. Monitoring Antrean & Outbox (GET /admin/queue)",
+      "parameters": [],
+      "parentId": "fld_admin_1794152169217",
+      "url": "http://localhost:3000/api/v1/admin/queue"
+    }
+  ]
+}
