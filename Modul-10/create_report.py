@@ -7,10 +7,6 @@ from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 
 def set_cell_border(cell, **kwargs):
-    """
-    Set cell borders: top, bottom, left, right.
-    kwargs: top={"sz": 4, "val": "single", "color": "000000"}
-    """
     tcPr = cell._element.get_or_add_tcPr()
     tcBorders = parse_xml(r'<w:tcBorders %s/>' % nsdecls('w'))
     for edge in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
@@ -121,6 +117,24 @@ def create_report():
         p_after = doc.add_paragraph()
         p_after.paragraph_format.space_after = Pt(3)
 
+    def add_screenshot(img_path, caption_text):
+        if os.path.exists(img_path):
+            p_img = doc.add_paragraph()
+            p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p_img.paragraph_format.space_before = Pt(4)
+            p_img.paragraph_format.space_after = Pt(2)
+            run_img = p_img.add_run()
+            run_img.add_picture(img_path, width=Inches(6.2))
+
+            p_cap = doc.add_paragraph()
+            p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p_cap.paragraph_format.space_after = Pt(6)
+            run_cap = p_cap.add_run(caption_text)
+            run_cap.font.name = 'Arial'
+            run_cap.font.size = Pt(8.5)
+            run_cap.font.italic = True
+            run_cap.font.color.rgb = RGBColor(0, 0, 0)
+
     # 1. Rancangan Dokumen & Skema Polyglot
     add_h1("1. Rancangan Dokumen dan Skema Polyglot")
     add_body(
@@ -165,6 +179,10 @@ def create_report():
   "updated_at": { "$date": "2026-11-07T09:05:20.809Z" }
 }"""
     add_code_block(sample_doc)
+
+    # Screenshot MongoDB Compass Student 1
+    img1_path = r"C:\Kuliah\Backend\Modul-10\screenshots\compass_portfolio_student1.png"
+    add_screenshot(img1_path, "Gambar 1.1: Tangkapan layar MongoDB Compass menampilkan dokumen student_portfolios (student_id: 1)")
 
     # 2. Potongan Kode Penting
     add_h1("2. Potongan Kode Penting")
@@ -343,7 +361,7 @@ def create_report():
     # 3. Bukti Pengujian (C.3)
     add_h1("3. Bukti Pengujian Lengkap (Butir C.3)")
     add_body(
-        "Pengujian fungsional dan uji konkurensi dijalankan menggunakan skrip otomatis test_runner.py serta perintah curl. Berikut rangkuman keluaran setiap uji:"
+        "Pengujian fungsional dan uji konkurensi dijalankan menggunakan skrip otomatis test_runner.py, loadtest.exe, serta perintah curl. Berikut rangkuman keluaran setiap uji:"
     )
 
     # Table of endpoints test results
@@ -400,7 +418,7 @@ def create_report():
 
     add_h2("a. Bukti Batas 20 Proyek Bertahan Saat Diserang Serentak")
     add_body(
-        "Skenario pengujian konkurensi dilakukan dengan menyiapkan portofolio mahasiswa (student_id: 34) yang telah terisi 18 proyek baseline. Selanjutnya, sistem mengirimkan 10 request POST /api/v1/students/34/portfolio/projects secara serentak menggunakan thread pool executor:"
+        "Skenario pengujian konkurensi dilakukan dengan menyiapkan portofolio mahasiswa (student_id: 34) yang telah terisi 18 proyek baseline. Selanjutnya, sistem mengirimkan 10 request POST /api/v1/students/34/portfolio/projects secara serentak menggunakan alat uji beban:"
     )
     concurrency_output = """Mengisi 18 proyek baseline...
 18 proyek awal berhasil diisi.
@@ -412,6 +430,10 @@ Contoh response 409 Conflict:
   {"success": false, "code": "PROJECT_LIMIT", "message": "jumlah proyek sudah mencapai batas maksimal 20"}
 Jumlah total proyek akhir di MongoDB: 20 (Tepat 20, konsisten dan bebas race condition)"""
     add_code_block(concurrency_output)
+
+    # Screenshot MongoDB Compass Student 34 (20 projects limit)
+    img2_path = r"C:\Kuliah\Backend\Modul-10\screenshots\compass_concurrency_student34.png"
+    add_screenshot(img2_path, "Gambar 3.1: Bukti MongoDB Compass pada student_id: 34 menunjukkan array projects berhenti tepat di 20 elemen (indeks 0–19)")
 
     add_h2("b. Bukti Empat Kasus Gagal yang Berbeda")
     fail_cases = """1. Kasus Gagal 1: Mahasiswa tidak terdaftar di PostgreSQL
