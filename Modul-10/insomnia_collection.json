@@ -7,18 +7,18 @@
     {
       "_id": "wrk_modul10",
       "parentId": null,
-      "modified": 1794113244558,
-      "created": 1794113244558,
+      "modified": 1794113726535,
+      "created": 1794113726535,
       "name": "Modul 10 - API Polyglot (MongoDB & PostgreSQL)",
-      "description": "Koleksi Insomnia lengkap untuk pengujian API Polyglot (MongoDB & PostgreSQL) - Pertemuan 10",
+      "description": "Koleksi Insomnia lengkap Modul 10 (Siap Langsung Send tanpa setting environment)",
       "scope": "collection",
       "_type": "workspace"
     },
     {
       "_id": "env_modul10",
       "parentId": "wrk_modul10",
-      "modified": 1794113244558,
-      "created": 1794113244558,
+      "modified": 1794113726535,
+      "created": 1794113726535,
       "name": "Base Environment",
       "data": {
         "base_url": "http://localhost:3000/api/v1",
@@ -40,16 +40,16 @@
       },
       "color": "#10b981",
       "isPrivate": false,
-      "metaSortKey": 1794113244558,
+      "metaSortKey": 1794113726535,
       "_type": "environment"
     },
     {
       "_id": "fld_01_health",
       "parentId": "wrk_modul10",
-      "modified": 1794113244558,
-      "created": 1794113244558,
+      "modified": 1794113726535,
+      "created": 1794113726535,
       "name": "01. Health Check",
-      "description": "Dual Health Check memeriksa PostgreSQL dan MongoDB",
+      "description": "Dual Health Check memeriksa PostgreSQL dan MongoDB secara simultan",
       "environment": {},
       "environmentPropertyOrder": null,
       "metaSortKey": 100,
@@ -58,10 +58,10 @@
     {
       "_id": "fld_02_auth",
       "parentId": "wrk_modul10",
-      "modified": 1794113244558,
-      "created": 1794113244558,
+      "modified": 1794113726535,
+      "created": 1794113726535,
       "name": "02. Autentikasi (Auth)",
-      "description": "Endpoint login, refresh token, dan cek profil user",
+      "description": "Endpoint registrasi, login admin/mahasiswa, refresh token, dan cek profile",
       "environment": {},
       "environmentPropertyOrder": null,
       "metaSortKey": 200,
@@ -70,10 +70,10 @@
     {
       "_id": "fld_03_reviews",
       "parentId": "wrk_modul10",
-      "modified": 1794113244558,
-      "created": 1794113244558,
+      "modified": 1794113726535,
+      "created": 1794113726535,
       "name": "03. Ulasan Mata Kuliah (Course Reviews - Bagian B)",
-      "description": "Endpoint ulasan kelas, balasan, helpful votes, dan agregasi ringkasan ($facet)",
+      "description": "Endpoint ulasan kelas (MongoDB), filter tag, ringkasan rating ($facet), balasan, dan helpful votes",
       "environment": {},
       "environmentPropertyOrder": null,
       "metaSortKey": 300,
@@ -82,10 +82,10 @@
     {
       "_id": "fld_04_portfolio",
       "parentId": "wrk_modul10",
-      "modified": 1794113244558,
-      "created": 1794113244558,
+      "modified": 1794113726535,
+      "created": 1794113726535,
       "name": "04. Portofolio Mahasiswa (Student Portfolio - Tugas Mandiri C)",
-      "description": "Endpoint portofolio, penambahan proyek atomik batas 20, penghapusan ($pull), dan top 10 teknologi ($unwind)",
+      "description": "Endpoint portofolio mahasiswa (MongoDB), upsert, tambah proyek atomik batas 20, hapus proyek ($pull), dan top 10 teknologi ($unwind)",
       "environment": {},
       "environmentPropertyOrder": null,
       "metaSortKey": 400,
@@ -94,10 +94,10 @@
     {
       "_id": "fld_05_negative",
       "parentId": "wrk_modul10",
-      "modified": 1794113244558,
-      "created": 1794113244558,
+      "modified": 1794113726535,
+      "created": 1794113726535,
       "name": "05. Kasus Uji Gagal & Keamanan (Butir C.3)",
-      "description": "Uji validasi penolakan error 404, 422, 400, dan penolakan NoSQL Injection",
+      "description": "Pengujian skenario kegagalan: error 404 mahasiswa fiktif, validasi struct 422, format ID salah 400, dan penolakan NoSQL Injection",
       "environment": {},
       "environmentPropertyOrder": null,
       "metaSortKey": 500,
@@ -106,11 +106,11 @@
     {
       "_id": "req_health",
       "parentId": "fld_01_health",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/health",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/health",
       "name": "Dual Health Check (PostgreSQL & MongoDB)",
-      "description": "Memeriksa status koneksi PostgreSQL dan MongoDB secara simultan",
+      "description": "Mengecek status server, PostgreSQL, dan MongoDB secara simultan (Harus 200 OK)",
       "method": "GET",
       "body": {},
       "parameters": [],
@@ -132,17 +132,17 @@
       "_type": "request"
     },
     {
-      "_id": "req_login_admin",
+      "_id": "req_auth_register",
       "parentId": "fld_02_auth",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/auth/login",
-      "name": "Login - Admin",
-      "description": "Mendapatkan access token role admin",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/auth/register",
+      "name": "Register User Baru",
+      "description": "Registrasi pengguna baru ke database PostgreSQL",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\"\n}"
+        "text": "{\n  \"username\": \"mahasiswa_modul10\",\n  \"email\": \"mhs_modul10@example.com\",\n  \"password\": \"Password123!\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -167,17 +167,17 @@
       "_type": "request"
     },
     {
-      "_id": "req_login_mhs",
+      "_id": "req_auth_login_admin",
       "parentId": "fld_02_auth",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/auth/login",
-      "name": "Login - Mahasiswa / User",
-      "description": "Mendapatkan access token role user/mahasiswa",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/auth/login",
+      "name": "Login - Admin",
+      "description": "Login menggunakan akun admin bawaan",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"username\": \"ilyas\",\n  \"password\": \"Password123!\"\n}"
+        "text": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -202,48 +202,17 @@
       "_type": "request"
     },
     {
-      "_id": "req_auth_me",
+      "_id": "req_auth_login_mhs",
       "parentId": "fld_02_auth",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/auth/me",
-      "name": "Get Profile User (Me)",
-      "description": "Melihat detail user dari claims token aktif",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [
-        {
-          "name": "Accept",
-          "value": "application/json"
-        }
-      ],
-      "authentication": {
-        "type": "bearer",
-        "token": "{{ _.token }}"
-      },
-      "metaSortKey": 203,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global",
-      "_type": "request"
-    },
-    {
-      "_id": "req_review_create",
-      "parentId": "fld_03_reviews",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/courses/{{ _.course_id }}/reviews",
-      "name": "1. Tulis Ulasan Kelas Baru",
-      "description": "Menulis ulasan baru (hanya mahasiswa peserta kelas di PostgreSQL yang diizinkan)",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/auth/login",
+      "name": "Login - Mahasiswa (User)",
+      "description": "Login menggunakan akun mahasiswa",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"rating\": 5,\n  \"comment\": \"Materi Go dan MongoDB sangat aplikatif dan terstruktur dengan baik.\",\n  \"tags\": [\n    \"go\",\n    \"mongodb\",\n    \"dosen-jelas\",\n    \"praktik-langsung\"\n  ]\n}"
+        "text": "{\n  \"username\": \"ilyas\",\n  \"password\": \"Password123!\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -256,9 +225,83 @@
           "value": "application/json"
         }
       ],
+      "authentication": {},
+      "metaSortKey": 203,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_auth_me",
+      "parentId": "fld_02_auth",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/auth/me",
+      "name": "Get Current Profile (/me)",
+      "description": "Melihat detail pengguna yang sedang login berdasarkan Bearer Token",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
+        }
+      ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
+      },
+      "metaSortKey": 204,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_review_create",
+      "parentId": "fld_03_reviews",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/courses/1/reviews",
+      "name": "1. Tulis Ulasan Kelas Baru",
+      "description": "Menulis ulasan baru untuk kelas ID 1. Server memeriksa IsEnrolled di PostgreSQL sebelum menulis ke MongoDB",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"rating\": 5,\n  \"comment\": \"Materi Go dan MongoDB sangat relevan dengan industri backend modern.\",\n  \"tags\": [\n    \"go\",\n    \"mongodb\",\n    \"dosen-jelas\",\n    \"praktik-langsung\"\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 301,
       "isPrivate": false,
@@ -273,11 +316,11 @@
     {
       "_id": "req_review_list",
       "parentId": "fld_03_reviews",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/courses/{{ _.course_id }}/reviews?limit=10",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/courses/1/reviews?limit=10",
       "name": "2. Daftar Ulasan Kelas (Cursor Pagination)",
-      "description": "Membaca ulasan kelas terbaru menggunakan kursor id",
+      "description": "Mengambil ulasan kelas terbaru menggunakan cursor pagination (limit & before)",
       "method": "GET",
       "body": {},
       "parameters": [],
@@ -285,11 +328,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 302,
       "isPrivate": false,
@@ -304,11 +351,11 @@
     {
       "_id": "req_review_list_tag",
       "parentId": "fld_03_reviews",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/courses/{{ _.course_id }}/reviews?tag=mongodb",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/courses/1/reviews?tag=mongodb",
       "name": "3. Filter Ulasan Berdasarkan Tag",
-      "description": "Mencari ulasan dengan multikey index tags",
+      "description": "Mencari ulasan berdasarkan tag menggunakan multikey index course_tags",
       "method": "GET",
       "body": {},
       "parameters": [],
@@ -316,11 +363,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 303,
       "isPrivate": false,
@@ -335,11 +386,11 @@
     {
       "_id": "req_review_summary",
       "parentId": "fld_03_reviews",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/courses/{{ _.course_id }}/reviews/summary",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/courses/1/reviews/summary",
       "name": "4. Ringkasan Ulasan Kelas ($facet Aggregation)",
-      "description": "Menghitung rating rata-rata, sebaran bintang 1-5, dan 5 tag terpopuler dalam satu pipeline $facet",
+      "description": "Aggregation pipeline $facet: menghitung rata-rata rating, sebaran bintang 1-5, dan 5 tag terpopuler",
       "method": "GET",
       "body": {},
       "parameters": [],
@@ -347,11 +398,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 304,
       "isPrivate": false,
@@ -366,11 +421,11 @@
     {
       "_id": "req_review_get",
       "parentId": "fld_03_reviews",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/reviews/{{ _.review_id }}",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/reviews/6aeeea8f35a52c16c2a4d548",
       "name": "5. Detail Ulasan Berdasarkan ID",
-      "description": "Membaca satu dokumen ulasan berdasarkan ObjectID",
+      "description": "Membaca satu dokumen ulasan berdasarkan ObjectID hex",
       "method": "GET",
       "body": {},
       "parameters": [],
@@ -378,11 +433,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 305,
       "isPrivate": false,
@@ -397,11 +456,11 @@
     {
       "_id": "req_review_patch",
       "parentId": "fld_03_reviews",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/reviews/{{ _.review_id }}",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/reviews/6aeeea8f35a52c16c2a4d548",
       "name": "6. Ubah Ulasan Sendiri ($set)",
-      "description": "Mengubah rating, komentar, atau tag milik sendiri secara atomik",
+      "description": "Mengubah rating, komentar, atau tag ulasan milik sendiri secara bersyarat",
       "method": "PATCH",
       "body": {
         "mimeType": "application/json",
@@ -416,11 +475,15 @@
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 306,
       "isPrivate": false,
@@ -435,15 +498,15 @@
     {
       "_id": "req_review_reply",
       "parentId": "fld_03_reviews",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/reviews/{{ _.review_id }}/replies",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/reviews/6aeeea8f35a52c16c2a4d548/replies",
       "name": "7. Tambah Balasan Ulasan ($push Bounded 50)",
-      "description": "Menambahkan balasan ke sub-dokumen replies (dibatasi maksimal 50)",
+      "description": "Menambah balasan dengan operasi atomik $push yang dibatasi maksimal 50 balasan via replies.49",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"body\": \"Terima kasih atas ulasannya! Saran Anda akan kami jadikan evaluasi silabus berikutnya.\"\n}"
+        "text": "{\n  \"body\": \"Terima kasih atas masukannya, evaluasi materi akan kami tingkatkan!\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -454,11 +517,15 @@
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 307,
       "isPrivate": false,
@@ -473,11 +540,11 @@
     {
       "_id": "req_review_helpful",
       "parentId": "fld_03_reviews",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/reviews/{{ _.review_id }}/helpful",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/reviews/6aeeea8f35a52c16c2a4d548/helpful",
       "name": "8. Beri Tanda Membantu ($addToSet & $inc)",
-      "description": "Menandai ulasan sebagai helpful secara atomik (hanya 1x per user)",
+      "description": "Operasi atomik menandai ulasan helpful: $addToSet mencatat user_id dan $inc menambah helpful_count",
       "method": "POST",
       "body": {},
       "parameters": [],
@@ -485,11 +552,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 308,
       "isPrivate": false,
@@ -504,11 +575,11 @@
     {
       "_id": "req_review_delete",
       "parentId": "fld_03_reviews",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/reviews/{{ _.review_id }}",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/reviews/6aeeea8f35a52c16c2a4d548",
       "name": "9. Hapus Ulasan (Pemilik / review:moderate)",
-      "description": "Menghapus ulasan oleh pemilik atau pemegang izin moderasi",
+      "description": "Menghapus ulasan. Hanya pemilik ulasan atau pemegang permission review:moderate yang diizinkan",
       "method": "DELETE",
       "body": {},
       "parameters": [],
@@ -516,11 +587,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 309,
       "isPrivate": false,
@@ -535,11 +610,11 @@
     {
       "_id": "req_port_get",
       "parentId": "fld_04_portfolio",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/students/{{ _.student_id }}/portfolio",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/students/1/portfolio",
       "name": "1. Membaca Portofolio Mahasiswa",
-      "description": "Membaca profil portofolio, sertifikat, dan proyek (validasi mahasiswa di PostgreSQL)",
+      "description": "Membaca profil portofolio mahasiswa ID 1 dari MongoDB (validasi mahasiswa di PostgreSQL)",
       "method": "GET",
       "body": {},
       "parameters": [],
@@ -547,11 +622,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 401,
       "isPrivate": false,
@@ -566,11 +645,11 @@
     {
       "_id": "req_port_upsert",
       "parentId": "fld_04_portfolio",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/students/{{ _.student_id }}/portfolio",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/students/1/portfolio",
       "name": "2. Buat / Ganti Portofolio (PUT Upsert)",
-      "description": "Membuat atau memperbarui portofolio mahasiswa secara upsert",
+      "description": "Membuat atau memperbarui portofolio mahasiswa ID 1 (headline, bio, dan sertifikat)",
       "method": "PUT",
       "body": {
         "mimeType": "application/json",
@@ -585,11 +664,15 @@
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 402,
       "isPrivate": false,
@@ -604,11 +687,11 @@
     {
       "_id": "req_port_add_project",
       "parentId": "fld_04_portfolio",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/students/{{ _.student_id }}/portfolio/projects",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/students/1/portfolio/projects",
       "name": "3. Tambah Proyek Portofolio ($push Max 20)",
-      "description": "Menambah proyek ke array projects secara atomik (dibatasi maksimal 20 proyek via projects.19: {$exists: false})",
+      "description": "Menambah proyek ke array projects secara atomik (dibatasi maksimal 20 proyek via filter projects.19: {$exists: false})",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
@@ -623,11 +706,15 @@
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 403,
       "isPrivate": false,
@@ -642,11 +729,11 @@
     {
       "_id": "req_port_del_project",
       "parentId": "fld_04_portfolio",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/students/{{ _.student_id }}/portfolio/projects/{{ _.project_id }}",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/students/1/portfolio/projects/6aeee9d035a52c16c2a4d50c",
       "name": "4. Hapus Proyek Portofolio ($pull)",
-      "description": "Menghapus proyek dari array projects menggunakan operator atomik $pull",
+      "description": "Menghapus sub-dokumen proyek dari array projects menggunakan operator atomik $pull",
       "method": "DELETE",
       "body": {},
       "parameters": [],
@@ -654,11 +741,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 404,
       "isPrivate": false,
@@ -673,11 +764,11 @@
     {
       "_id": "req_port_stats_tech",
       "parentId": "fld_04_portfolio",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/portfolios/stats/technologies",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/portfolios/stats/technologies",
       "name": "5. Statistik 10 Teknologi Terbanyak ($unwind Pipeline)",
-      "description": "Agregasi menghitung 10 teknologi paling populer dari seluruh portofolio mahasiswa",
+      "description": "Menjalankan aggregation pipeline dua kali $unwind untuk menghasilkan daftar 10 teknologi paling populer",
       "method": "GET",
       "body": {},
       "parameters": [],
@@ -685,11 +776,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 405,
       "isPrivate": false,
@@ -704,11 +799,11 @@
     {
       "_id": "req_fail_student_not_found",
       "parentId": "fld_05_negative",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/students/99999/portfolio",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/students/99999/portfolio",
       "name": "Kasus 1: Mahasiswa Tidak Ada di PostgreSQL (404)",
-      "description": "Ditolak dengan 404 NOT_FOUND karena student_id 99999 tidak terdaftar di database PostgreSQL",
+      "description": "Membuktikan validasi lintas database: mahasiswa ID 99999 tidak ada di PostgreSQL sehingga ditolak 404 NOT_FOUND",
       "method": "GET",
       "body": {},
       "parameters": [],
@@ -716,11 +811,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 501,
       "isPrivate": false,
@@ -735,11 +834,11 @@
     {
       "_id": "req_fail_struct_validation",
       "parentId": "fld_05_negative",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/students/{{ _.student_id }}/portfolio/projects",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/students/1/portfolio/projects",
       "name": "Kasus 2: Validasi Struct Gagal / Title Kosong (422)",
-      "description": "Ditolak dengan 422 VALIDATION_ERROR karena field title proyek wajib diisi",
+      "description": "Membuktikan validasi struct: field title wajib diisi sehingga ditolak dengan 422 VALIDATION_ERROR",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
@@ -754,11 +853,15 @@
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 502,
       "isPrivate": false,
@@ -773,11 +876,11 @@
     {
       "_id": "req_fail_invalid_objectid",
       "parentId": "fld_05_negative",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/students/{{ _.student_id }}/portfolio/projects/bukan-hex-id",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/students/1/portfolio/projects/bukan-hex-id",
       "name": "Kasus 3: Format ObjectID Tidak Valid (400)",
-      "description": "Ditolak dengan 400 BAD_REQUEST karena format ObjectID bukan hex 24 karakter",
+      "description": "Membuktikan validasi tipe ObjectID MongoDB: string bukan-hex-id ditolak dengan 400 BAD_REQUEST",
       "method": "DELETE",
       "body": {},
       "parameters": [],
@@ -785,11 +888,15 @@
         {
           "name": "Accept",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 503,
       "isPrivate": false,
@@ -804,15 +911,15 @@
     {
       "_id": "req_fail_nosql_injection",
       "parentId": "fld_05_negative",
-      "modified": 1794113244558,
-      "created": 1794113244558,
-      "url": "{{ _.base_url }}/students/{{ _.student_id }}/portfolio",
+      "modified": 1794113726535,
+      "created": 1794113726535,
+      "url": "http://localhost:3000/api/v1/students/1/portfolio",
       "name": "Kasus 4: Percobaan NoSQL Injection Ditolak (400)",
-      "description": "Payload objek {$ne: null} ditolak oleh decoder Go bertipe statis dengan 400 BAD_REQUEST",
+      "description": "Membuktikan kekebalan terhadap NoSQL Injection: penyisipan operator {$ne: null} ditolak oleh parser Go bertipe statis",
       "method": "PUT",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"headline\": { \"$ne\": null },\n  \"bio\": \"Testing Injection\"\n}"
+        "text": "{\n  \"headline\": {\n    \"$ne\": null\n  },\n  \"bio\": \"Testing Injection\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -823,11 +930,15 @@
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
         }
       ],
       "authentication": {
         "type": "bearer",
-        "token": "{{ _.token }}"
+        "token": "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiNiIsICJpc3MiOiAicHJha3Rpa3VtLWJhY2tlbmQiLCAiaWF0IjogMTc5NDExMzE3MCwgImV4cCI6IDE4MjU2NDkxNzAsICJ1c2VybmFtZSI6ICJhZG1pbiIsICJyb2xlIjogImFkbWluIn0.Zyi0MnhyngPmjfT9bHyUyiQQOb43c3r2a_hHRvJkitI"
       },
       "metaSortKey": 504,
       "isPrivate": false,
